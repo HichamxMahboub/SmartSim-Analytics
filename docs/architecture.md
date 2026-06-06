@@ -44,3 +44,7 @@ Simulink/MATLAB -> CSV/JSON -> Multer upload -> MongoDB metadata
 - SimulationFile: fichier uploadé, colonnes, statut d'analyse
 - AnalysisResult: KPIs, anomalies, tendance, recommandations
 
+
+## Deployment
+
+Voir `docs/deployment.md` pour les etapes Vercel, Render et MongoDB Atlas.

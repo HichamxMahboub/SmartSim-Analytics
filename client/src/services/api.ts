@@ -14,7 +14,11 @@ api.interceptors.request.use(config => {
 
 export function getApiError(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    return error.response?.data?.message ?? error.message;
+    if (!error.response) {
+      return "API unreachable. Check VITE_API_URL and make sure the backend is running.";
+    }
+
+    return error.response.data?.message ?? error.message;
   }
 
   return "Unexpected error.";

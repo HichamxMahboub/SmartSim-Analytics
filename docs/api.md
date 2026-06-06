@@ -8,6 +8,14 @@ Toutes les routes sauf `/auth/register` et `/auth/login` nécessitent:
 Authorization: Bearer <jwt>
 ```
 
+## Health
+
+### GET `/health`
+
+```json
+{ "status": "ok", "service": "SmartSim Analytics API" }
+```
+
 ## Auth
 
 ### POST `/auth/register`
@@ -80,7 +88,7 @@ Retourne un aperçu parsé pour les graphiques.
 
 ### POST `/analysis/:fileId/run`
 
-Lance `scripts/analyze_simulation.py` et sauvegarde le résultat.
+Lance `scripts/analyze_simulation.py` et sauvegarde le résultat. Le JSON Python contient notamment `points_count`, `mean`, `min`, `max`, `std`, `anomalies`, `trend`, `recommendations` et `kpis`.
 
 ### GET `/analysis/:fileId`
 

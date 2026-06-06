@@ -3,10 +3,18 @@ import json
 import math
 import os
 import sys
+from pathlib import Path
 from typing import Any, Dict, List
 
-import numpy as np
-import pandas as pd
+try:
+    import numpy as np
+    import pandas as pd
+except ModuleNotFoundError:
+    venv_python = Path(__file__).resolve().parents[1] / ".venv" / "bin" / "python"
+    if venv_python.exists() and not os.environ.get("SMARTSIM_VENV_REEXEC"):
+        os.environ["SMARTSIM_VENV_REEXEC"] = "1"
+        os.execv(str(venv_python), [str(venv_python), *sys.argv])
+    raise
 
 
 def load_dataframe(file_path: str) -> pd.DataFrame:
@@ -163,11 +171,17 @@ def analyze(file_path: str) -> Dict[str, Any]:
     anomalies = detect_anomalies(df, numeric_columns, time_column)
     trend = estimate_trend(df, target_column, time_column)
     stability = stability_metrics(df, target_column)
+    target_kpis = kpis.get(target_column, {})
 
     return {
         "file": os.path.basename(file_path),
         "columns": list(df.columns),
         "row_count": int(len(df)),
+        "points_count": target_kpis.get("points", int(len(df))),
+        "mean": target_kpis.get("mean"),
+        "min": target_kpis.get("min"),
+        "max": target_kpis.get("max"),
+        "std": target_kpis.get("std"),
         "target_signal": target_column,
         "kpis": kpis,
         "anomalies": anomalies,

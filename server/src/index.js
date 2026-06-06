@@ -45,8 +45,7 @@ app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
-    service: "SmartSim Analytics API",
-    timestamp: new Date().toISOString()
+    service: "SmartSim Analytics API"
   });
 });
 
