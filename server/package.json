@@ -1,0 +1,38 @@
+{
+  "name": "smartsim-analytics-server",
+  "version": "1.0.0",
+  "description": "Express API for SmartSim Analytics",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "lint": "node --check src/index.js && node --check src/routes/auth.routes.js && node --check src/routes/project.routes.js && node --check src/routes/analysis.routes.js && node --check src/routes/dashboard.routes.js && node --check src/routes/report.routes.js",
+    "analyze:sample": ".venv/bin/python scripts/analyze_simulation.py ../matlab/sample_simulink_output.csv"
+  },
+  "keywords": [
+    "mern",
+    "simulink",
+    "python",
+    "analytics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-async-handler": "^1.2.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
+}
