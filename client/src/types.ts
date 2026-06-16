@@ -29,6 +29,21 @@ export interface SimulationFile {
   createdAt: string;
 }
 
+export interface AnalysisRawPayload {
+  schema_version?: number;
+  file?: string;
+  columns?: string[];
+  row_count?: number;
+  points_count?: number;
+  target_signal?: string;
+  quality?: {
+    time_column?: string | null;
+    numeric_columns?: string[];
+    missing_values?: Record<string, number>;
+    sample_rows?: number;
+  };
+}
+
 export interface AnalysisResult {
   _id: string;
   project: string;
@@ -39,6 +54,7 @@ export interface AnalysisResult {
   stability: Record<string, number | string | null>;
   recommendations: string[];
   sample: SimulationRow[];
+  raw?: AnalysisRawPayload;
   createdAt: string;
 }
 
@@ -59,4 +75,3 @@ export interface DashboardSummary {
   anomalyCount: number;
   latestAnalyses: AnalysisResult[];
 }
-

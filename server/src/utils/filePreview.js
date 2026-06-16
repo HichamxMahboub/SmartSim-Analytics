@@ -9,7 +9,19 @@ async function parseSimulationFile(filePath, limit = 400) {
   if (ext === ".json") {
     const parsed = JSON.parse(raw);
     const rows = Array.isArray(parsed) ? parsed : parsed.data || [];
+    if (!Array.isArray(rows)) {
+      throw new Error("JSON simulation files must be an array or an object with a data array.");
+    }
+
+    if (rows.some(row => row === null || Array.isArray(row) || typeof row !== "object")) {
+      throw new Error("JSON simulation rows must be objects with named signal fields.");
+    }
+
     return rows.slice(0, limit);
+  }
+
+  if (ext !== ".csv") {
+    throw new Error("Only CSV and JSON simulation files are accepted.");
   }
 
   const rows = parse(raw, {

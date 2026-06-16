@@ -20,26 +20,58 @@ interface SignalChartProps {
 }
 
 function numberValue(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : null;
+  }
+
+  return null;
+}
+
+function findTimeKey(keys: string[]): string | null {
+  const lookup = new Map(keys.map(key => [key.toLowerCase(), key]));
+  return lookup.get("time") ?? lookup.get("timestamp") ?? lookup.get("t") ?? lookup.get("seconds") ?? null;
+}
+
+function EmptyChart({ message }: { message: string }): JSX.Element {
+  return (
+    <div className="grid h-72 place-items-center rounded-lg border border-dashed border-slate-300 bg-white px-4 text-center text-sm text-slate-500">
+      {message}
+    </div>
+  );
 }
 
 export function SignalChart({ rows, mode, anomalies = [] }: SignalChartProps): JSX.Element {
-  const hasInputOutput = rows.some(row => numberValue(row.input) !== null && numberValue(row.output) !== null);
-
   if (!rows.length) {
-    return (
-      <div className="grid h-72 place-items-center rounded-lg border border-dashed border-slate-300 bg-white text-sm text-slate-500">
-        No signal data loaded
-      </div>
-    );
+    return <EmptyChart message="No signal data loaded" />;
+  }
+
+  const keys = Object.keys(rows[0]);
+  const timeKey = findTimeKey(keys);
+  const numericKeys = keys.filter(
+    key => key !== timeKey && rows.some(row => numberValue(row[key]) !== null)
+  );
+
+  if (!numericKeys.length) {
+    return <EmptyChart message="No numeric signals found in this dataset" />;
   }
 
   if (mode === "anomalies") {
-    const points = anomalies.map(item => ({
-      time: numberValue(item.time) ?? Number(item.row ?? 0),
-      value: numberValue(item.value),
-      signal: String(item.signal ?? "signal")
-    }));
+    const points = anomalies
+      .map(item => ({
+        time: numberValue(item.time) ?? numberValue(item.row) ?? 0,
+        value: numberValue(item.value),
+        signal: String(item.signal ?? "signal")
+      }))
+      .filter(point => point.value !== null);
+
+    if (!points.length) {
+      return <EmptyChart message="No anomaly points detected for the latest analysis" />;
+    }
 
     return (
       <div className="h-72 rounded-lg border border-slate-200 bg-white p-4">
@@ -56,14 +88,26 @@ export function SignalChart({ rows, mode, anomalies = [] }: SignalChartProps): J
     );
   }
 
-  const signalKey = rows[0].output !== undefined ? "output" : Object.keys(rows[0]).find(key => key !== "time") ?? "signal";
+  const chartRows = rows.map((row, index) => {
+    const normalized: Record<string, number | null> = {
+      __x: numberValue(timeKey ? row[timeKey] : null) ?? index
+    };
+
+    numericKeys.forEach(key => {
+      normalized[key] = numberValue(row[key]);
+    });
+
+    return normalized;
+  });
+  const hasInputOutput = ["input", "output"].every(key => numericKeys.includes(key));
+  const signalKey = numericKeys.includes("output") ? "output" : numericKeys[0];
 
   return (
     <div className="h-72 rounded-lg border border-slate-200 bg-white p-4">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={rows}>
+        <LineChart data={chartRows}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+          <XAxis dataKey="__x" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip />
           <Legend />
@@ -80,4 +124,3 @@ export function SignalChart({ rows, mode, anomalies = [] }: SignalChartProps): J
     </div>
   );
 }
-

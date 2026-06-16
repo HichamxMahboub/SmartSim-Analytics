@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "lint": "node --check src/index.js && node --check src/routes/auth.routes.js && node --check src/routes/project.routes.js && node --check src/routes/analysis.routes.js && node --check src/routes/dashboard.routes.js && node --check src/routes/report.routes.js",
-    "analyze:sample": ".venv/bin/python scripts/analyze_simulation.py ../matlab/sample_simulink_output.csv"
+    "lint": "node --check src/index.js && node --check src/config/db.js && node --check src/middleware/auth.js && node --check src/middleware/errorHandler.js && node --check src/middleware/upload.js && node --check src/routes/auth.routes.js && node --check src/routes/project.routes.js && node --check src/routes/analysis.routes.js && node --check src/routes/dashboard.routes.js && node --check src/routes/report.routes.js && node --check src/services/pythonAnalyzer.js && node --check src/services/reportService.js && node --check src/utils/filePreview.js && node --check src/utils/token.js",
+    "python:check": "python3 -m py_compile scripts/analyze_simulation.py",
+    "analyze:sample": "python3 scripts/analyze_simulation.py ../matlab/sample_simulink_output.csv"
   },
   "keywords": [
     "mern",

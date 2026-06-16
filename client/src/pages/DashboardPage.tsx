@@ -8,10 +8,12 @@ import type { DashboardSummary } from "../types";
 export function DashboardPage(): JSX.Element {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let ignore = false;
 
+    setLoading(true);
     api
       .get<DashboardSummary>("/dashboard/summary")
       .then(({ data }) => {
@@ -22,6 +24,11 @@ export function DashboardPage(): JSX.Element {
       .catch(apiError => {
         if (!ignore) {
           setError(getApiError(apiError));
+        }
+      })
+      .finally(() => {
+        if (!ignore) {
+          setLoading(false);
         }
       });
 
@@ -51,13 +58,17 @@ export function DashboardPage(): JSX.Element {
           <h2 className="font-semibold text-slate-950">Latest analyses</h2>
         </div>
         <div className="divide-y divide-slate-100">
-          {summary?.latestAnalyses.length ? (
+          {loading ? (
+            <p className="px-4 py-8 text-sm text-slate-500">Loading analyses...</p>
+          ) : summary?.latestAnalyses.length ? (
             summary.latestAnalyses.map(analysis => (
               <article key={analysis._id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <div>
-                  <p className="font-medium text-slate-950">Trend: {analysis.trend}</p>
+                  <p className="font-medium text-slate-950">
+                    {analysis.raw?.target_signal ?? "signal"} - {analysis.trend}
+                  </p>
                   <p className="text-sm text-slate-500">
-                    {analysis.anomalies.length} anomalies · {new Date(analysis.createdAt).toLocaleString()}
+                    {analysis.anomalies.length} anomalies - {new Date(analysis.createdAt).toLocaleString()}
                   </p>
                 </div>
                 <span className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -73,4 +84,3 @@ export function DashboardPage(): JSX.Element {
     </div>
   );
 }
-

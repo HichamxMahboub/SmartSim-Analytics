@@ -1,192 +1,194 @@
 # SmartSim Analytics
 
-SmartSim Analytics est une application full-stack demonstrative qui relie MATLAB/Simulink, Python et la stack MERN pour analyser des resultats de simulation. Elle permet d'importer des sorties CSV/JSON, de lancer une analyse Python, de visualiser les signaux dans un dashboard React et de generer un rapport PDF.
+SmartSim Analytics is a portfolio-ready simulation analytics platform. It combines a React/Vite frontend, a Node/Express API, MongoDB persistence, and deterministic Python analytics scripts to process simulation datasets and generate engineering insights.
 
-Le projet est concu pour un portfolio d'etudiant ingenieur. Il montre une integration realiste MATLAB/Simulink + Python analytics + application web, sans dependre d'une licence MATLAB pour fonctionner localement.
+The project is intentionally honest: it does not run Simulink in the browser. It models a practical workflow where MATLAB/Simulink exports CSV or JSON data, the web app ingests the dataset, Python analyzes the signals, and the dashboard presents KPIs, anomalies, stability, trends, and PDF reports.
 
-## Pourquoi ce projet existe
+## Portfolio Value
 
-SmartSim Analytics cible les offres de stage/PFA qui demandent a la fois MATLAB/Simulink, IA ou analyse de donnees, Python et developpement web. Le projet montre une chaine complete: export simulation, ingestion web, analyse statistique, visualisation et rapport exploitable.
+SmartSim Analytics is designed for engineering, data, and full-stack internship interviews. It demonstrates:
 
-## Stack technique
+- Full-stack product structure with React, Express, MongoDB, and Python.
+- Simulation-data workflow inspired by MATLAB/Simulink exports.
+- Security-conscious development practices: environment examples, ignored secrets, JWT auth, upload validation, and bounded Python execution.
+- Recruiter-friendly documentation, API references, CI, and a repeatable sample dataset.
+- Clear separation between UI, API, persistence, reporting, and analytics code.
 
-- Frontend: React, Vite, TypeScript, Tailwind CSS, React Router, Axios, Recharts
-- Backend: Node.js, Express.js, MongoDB, Mongoose, JWT, Multer, PDFKit
-- Analyse: Python, pandas, numpy, scipy, scikit-learn disponible si besoin
-- Simulation: dossier `matlab/` avec CSV exemple et script `export_simulation.m`
-- Deploiement cible: Vercel pour le frontend, Render pour le backend, MongoDB Atlas pour la base
+## Features
 
-## Fonctionnalites principales
+- JWT register/login flow.
+- Simulation project CRUD.
+- CSV/JSON upload with file type, size, and preview validation.
+- Python analysis endpoint with upload-directory confinement, timeout, and output limits.
+- Deterministic analytics output with versioned JSON schema.
+- KPIs for numeric signals: points, mean, min, max, standard deviation, and threshold exceedances.
+- Z-score anomaly detection, trend estimation, stability classification, and recommendations.
+- React dashboard with empty, loading, and error states.
+- Signal charts for target signal, input/output comparison, and anomalies.
+- PDF report generation with project metadata, KPIs, anomalies, and recommendations.
+- GitHub Actions CI for server, client, and Python validation.
 
-- Authentification register/login avec JWT
-- CRUD de projets de simulation
-- Upload de fichiers CSV ou JSON dans `server/uploads/`
-- Analyse Python appelee depuis le backend Node.js
-- KPIs: nombre de points, moyenne, minimum, maximum, ecart-type, depassements de seuil, stabilite
-- Detection d'anomalies par z-score
-- Dashboard responsive avec courbes de signaux, comparaison input/output et anomalies
-- Generation et telechargement d'un rapport PDF
-- Documentation API, architecture, deployment, script demo et description CV
+## Tech Stack
 
-## Architecture des dossiers
+- Frontend: React 18, Vite, TypeScript, Tailwind CSS, React Router, Axios, Recharts, Lucide icons.
+- Backend: Node.js, Express, Mongoose, MongoDB, JWT, Multer, PDFKit, Zod.
+- Analytics: Python 3.10+, pandas, numpy, scipy, scikit-learn.
+- Simulation sample: `matlab/sample_simulink_output.csv` plus MATLAB export notes in `matlab/`.
+- CI: GitHub Actions with Node 20 and Python 3.11.
+
+## Architecture
 
 ```text
-client/              Frontend React/Vite/TypeScript
-server/              API Express, MongoDB, uploads, analyse Python
-server/scripts/      analyze_simulation.py
-matlab/              Integration demonstrative MATLAB/Simulink
-matlab/sample_simulink_output.csv
-docs/                Architecture, API, deploiement, demo, CV
+MATLAB/Simulink export
+        |
+        v
+CSV/JSON dataset -> Express upload -> MongoDB metadata
+                           |
+                           v
+                  Python analysis script
+                           |
+                           v
+              JSON result stored in MongoDB
+                           |
+                           v
+        React dashboard + charts + PDF report
 ```
 
-Voir aussi:
+Key folders:
 
-- [docs/architecture.md](docs/architecture.md)
-- [docs/api.md](docs/api.md)
-- [docs/deployment.md](docs/deployment.md)
-- [docs/demo-script.md](docs/demo-script.md)
-- [docs/cv-description.md](docs/cv-description.md)
+```text
+client/              React/Vite/TypeScript frontend
+server/              Express API, MongoDB models, uploads, reports
+server/scripts/      deterministic Python analytics script
+matlab/              safe sample dataset and MATLAB export helper
+docs/                architecture, API, deployment, demo, CV notes
+.github/workflows/   CI validation workflow
+```
 
-## Installation locale
+## Local Setup
 
-### Prerequis
+Prerequisites:
 
 - Node.js 20+
 - npm 10+
 - Python 3.10+
-- MongoDB local ou Docker
+- MongoDB local instance or Docker
 
-### 1. Installer les dependances
+Install dependencies:
 
 ```bash
-cd smartsim-analytics
 npm install --prefix server
 npm install --prefix client
 python3 -m venv server/.venv
-source server/.venv/bin/activate
-pip install -r server/requirements.txt
+server/.venv/bin/pip install -r server/requirements.txt
 ```
 
-### 2. Lancer MongoDB
+Create local environment files:
 
-Docker Compose v2:
+```bash
+cp server/.env.example server/.env
+cp client/.env.example client/.env.local
+```
+
+For local development, `server/.env` can use:
+
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/smartsim_analytics
+MONGO_TIMEOUT_MS=5000
+JWT_SECRET=change_me_secure_secret
+CLIENT_URL=http://localhost:5173
+PYTHON_BIN=python3
+PYTHON_ANALYSIS_TIMEOUT_MS=15000
+PYTHON_ANALYSIS_MAX_OUTPUT_BYTES=1048576
+```
+
+Do not commit real `.env` files or production secrets.
+
+Start MongoDB with Docker:
 
 ```bash
 docker compose up -d mongo
 ```
 
-Fallback Docker Compose v1:
+Validate the sample analytics script:
 
 ```bash
-docker-compose up -d mongo
+npm run python:check --prefix server
+npm run analyze:sample --prefix server
 ```
 
-### 3. Configurer les variables d'environnement
-
-Backend:
-
-```bash
-cp server/.env.example server/.env
-```
-
-Frontend:
-
-```bash
-cp client/.env.example client/.env.local
-```
-
-### 4. Verifier le script Python
-
-Avec le virtualenv local:
-
-```bash
-server/.venv/bin/python server/scripts/analyze_simulation.py matlab/sample_simulink_output.csv
-```
-
-Ou, si les dependances Python sont installees dans l'environnement actif:
-
-```bash
-python3 server/scripts/analyze_simulation.py matlab/sample_simulink_output.csv
-```
-
-### 5. Lancer l'application
-
-Terminal backend:
+Run the app:
 
 ```bash
 npm run dev --prefix server
-```
-
-Terminal frontend:
-
-```bash
 npm run dev --prefix client
 ```
 
-Frontend: `http://localhost:5173`
-API: `http://localhost:5000/api`
-Health check: `http://localhost:5000/api/health`
+Local URLs:
 
-## Variables d'environnement
+- Frontend: `http://localhost:5173`
+- API base URL: `http://localhost:5000/api`
+- Health check: `http://localhost:5000/api/health`
 
-### Frontend Vite
+## API Quick Reference
 
-```env
-VITE_API_URL=http://localhost:5000/api
+Public routes:
+
+- `GET /api/health`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+
+Authenticated routes require `Authorization: Bearer <jwt>`:
+
+- `GET /api/projects`
+- `POST /api/projects`
+- `GET /api/projects/:id`
+- `PUT /api/projects/:id`
+- `DELETE /api/projects/:id`
+- `POST /api/projects/:projectId/files`
+- `GET /api/projects/:projectId/files/:fileId/data`
+- `POST /api/analysis/:fileId/run`
+- `GET /api/analysis/:fileId`
+- `GET /api/dashboard/summary`
+- `GET /api/reports/:projectId/:analysisId`
+
+More detail: [docs/api.md](docs/api.md).
+
+## Sample Workflow
+
+1. Start MongoDB, backend, and frontend.
+2. Register or log in.
+3. Create a project, for example `DC Motor Speed Control`.
+4. Upload `matlab/sample_simulink_output.csv`.
+5. Run Python analysis.
+6. Review KPIs, chart views, anomaly points, recommendations, and PDF report.
+
+## Validation Commands
+
+```bash
+npm install --prefix server
+npm install --prefix client
+npm run lint --prefix server
+npm run python:check --prefix server
+npm run analyze:sample --prefix server
+npm run lint --prefix client
+npm run build --prefix client
 ```
 
-En production Vercel:
+## Deployment Notes
 
-```env
-VITE_API_URL=https://TON-BACKEND-RENDER.onrender.com/api
-```
+Recommended portfolio deployment:
 
-### Backend Express
+- Frontend: Vercel, root `client`, build `npm run build`, output `dist`.
+- Backend: Render, root `server`, build `npm install && pip install -r requirements.txt`, start `npm start`.
+- Database: MongoDB Atlas.
 
-```env
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/smartsim_analytics
-JWT_SECRET=change_me_secure_secret
-CLIENT_URL=http://localhost:5173
-PYTHON_BIN=python3
-```
+See [docs/deployment.md](docs/deployment.md).
 
-En production Render, utilisez MongoDB Atlas, un `JWT_SECRET` long et aleatoire, et l'URL Vercel dans `CLIENT_URL`.
+## Remaining Honest Limitations
 
-## Deploiement production
-
-Le deploiement recommande est:
-
-- Frontend: Vercel, root directory `client`, build `npm run build`, output `dist`
-- Backend: Render, root directory `server`, build `npm install && pip install -r requirements.txt`, start `npm start`
-- Database: MongoDB Atlas avec une connection string `mongodb+srv://...`
-
-Les etapes detaillees sont dans [docs/deployment.md](docs/deployment.md).
-
-## Donnees MATLAB/Simulink
-
-Un exemple pret a importer est disponible ici:
-
-```text
-matlab/sample_simulink_output.csv
-```
-
-Le dossier `matlab/` contient aussi `export_simulation.m` et `README_MATLAB.md`, qui expliquent comment exporter une simulation Simulink vers CSV. L'application fonctionne avec les fichiers CSV exemples sans licence MATLAB.
-
-## Captures a ajouter
-
-Ajoutez vos captures dans `docs/screenshots/` apres avoir lance l'application:
-
-- `landing.png`: page d'accueil
-- `dashboard.png`: dashboard KPIs et graphiques
-- `project-detail.png`: detail projet avec analyse
-- `pdf-report.png`: apercu du rapport genere
-
-## Description CV courte
-
-SmartSim Analytics — MERN / Python / MATLAB-Simulink  
-Plateforme web d'analyse de resultats de simulation: import CSV/JSON depuis MATLAB-Simulink, traitement Python, detection d'anomalies, visualisation de signaux et generation de rapports PDF via un dashboard MERN.
-
-## Note d'honnetete technique
-
-Ce projet ne pretend pas embarquer Simulink dans le navigateur. Il demontre une integration professionnelle: Simulink exporte les resultats, l'application les importe, Python les analyse, puis MERN les expose via API et dashboard.
+- Uploads are stored on the backend filesystem. For production, move uploaded files to object storage.
+- The analytics script is deterministic and useful for demonstration, but it is not a domain-certified control-systems validator.
+- The sample dataset is safe and synthetic/demo-oriented; real Simulink exports should be validated with domain-specific expectations.
+- Authentication is portfolio-grade JWT auth, not a complete enterprise identity system.

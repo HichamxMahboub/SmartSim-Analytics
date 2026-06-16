@@ -16,7 +16,17 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 function getStoredUser(): User | null {
   const raw = localStorage.getItem("smartsim_user");
-  return raw ? (JSON.parse(raw) as User) : null;
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as User;
+  } catch {
+    localStorage.removeItem("smartsim_user");
+    localStorage.removeItem("smartsim_token");
+    return null;
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }): JSX.Element {

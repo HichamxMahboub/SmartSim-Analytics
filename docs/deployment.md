@@ -52,9 +52,12 @@ web: npm start
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/smartsim_analytics
+MONGO_TIMEOUT_MS=5000
 JWT_SECRET=long_random_secret
 CLIENT_URL=https://TON-FRONTEND-VERCEL.vercel.app
 PYTHON_BIN=python3
+PYTHON_ANALYSIS_TIMEOUT_MS=15000
+PYTHON_ANALYSIS_MAX_OUTPUT_BYTES=1048576
 ```
 
 ### Verifications backend
@@ -68,7 +71,11 @@ https://TON-BACKEND-RENDER.onrender.com/api/health
 La reponse attendue est:
 
 ```json
-{ "status": "ok", "service": "SmartSim Analytics API" }
+{
+  "status": "ok",
+  "service": "SmartSim Analytics API",
+  "database": "connected"
+}
 ```
 
 ## 3. Frontend Vercel
@@ -111,5 +118,6 @@ Redepoyer le frontend apres avoir ajoute ou modifie `VITE_API_URL`, car les vari
 
 - Ne jamais commiter `.env`, `.env.local` ou des secrets.
 - Garder `JWT_SECRET` long, aleatoire et different de la valeur d'exemple.
-- Les uploads Render sont stockes localement et peuvent etre ephemeres selon le plan. Pour une production reelle, remplacer `server/uploads` par un stockage objet comme S3, Cloudinary ou équivalent.
+- Les uploads Render sont stockes localement et peuvent etre ephemeres selon le plan. Pour une production reelle, remplacer `server/uploads` par un stockage objet comme S3, Cloudinary ou equivalent.
+- Garder les limites Python (`PYTHON_ANALYSIS_TIMEOUT_MS`, `PYTHON_ANALYSIS_MAX_OUTPUT_BYTES`) actives pour eviter les analyses trop longues ou trop volumineuses.
 - L'integration MATLAB/Simulink est demonstrative: Simulink exporte les donnees, SmartSim Analytics les importe et les analyse.

@@ -1,19 +1,38 @@
-# API
+# API Reference
 
-Base URL locale: `http://localhost:5000/api`
+Base URL for local development: `http://localhost:5000/api`
 
-Toutes les routes sauf `/auth/register` et `/auth/login` nécessitent:
+All routes except `/health`, `/auth/register`, and `/auth/login` require:
 
 ```http
 Authorization: Bearer <jwt>
 ```
 
+Error responses use this shape:
+
+```json
+{
+  "message": "Validation error.",
+  "errors": [{ "path": "email", "message": "Invalid email" }]
+}
+```
+
+In non-production mode, error responses may also include `details` for debugging. Do not expose stack traces in production.
+
 ## Health
 
 ### GET `/health`
 
+Returns API runtime status and MongoDB connection state.
+
 ```json
-{ "status": "ok", "service": "SmartSim Analytics API" }
+{
+  "status": "ok",
+  "service": "SmartSim Analytics API",
+  "uptimeSeconds": 42,
+  "timestamp": "2026-06-16T12:00:00.000Z",
+  "database": "connected"
+}
 ```
 
 ## Auth
@@ -37,11 +56,24 @@ Authorization: Bearer <jwt>
 }
 ```
 
-## Projets
+Successful auth responses include:
+
+```json
+{
+  "token": "jwt-token",
+  "user": {
+    "id": "mongo-user-id",
+    "name": "Student Engineer",
+    "email": "student@example.com"
+  }
+}
+```
+
+## Projects
 
 ### GET `/projects`
 
-Retourne les projets de l'utilisateur connecté.
+Returns projects owned by the authenticated user.
 
 ### POST `/projects`
 
@@ -60,49 +92,95 @@ Retourne les projets de l'utilisateur connecté.
 
 ### GET `/projects/:id`
 
-Détail projet avec fichiers et analyses.
+Returns project metadata, uploaded files, and saved analyses.
 
 ### PUT `/projects/:id`
 
-Met à jour un projet.
+Updates project metadata.
 
 ### DELETE `/projects/:id`
 
-Supprime un projet et ses métadonnées associées.
+Deletes the project and related metadata.
 
-## Fichiers
+## Files
 
 ### POST `/projects/:projectId/files`
 
-Form-data:
+Multipart form-data:
 
-- `file`: fichier `.csv` ou `.json`
+- `file`: `.csv` or `.json` simulation dataset, maximum 10 MB.
 
-Le backend stocke le fichier dans `server/uploads/`.
+The backend stores runtime uploads in `server/uploads/`, validates the extension, parses a small preview, and rejects empty or malformed datasets.
+
+Accepted input formats:
+
+- CSV with a header row and one simulation sample per row.
+- JSON array of row objects.
+- JSON object with a `data` array of row objects.
 
 ### GET `/projects/:projectId/files/:fileId/data`
 
-Retourne un aperçu parsé pour les graphiques.
+Returns parsed rows for charting.
 
-## Analyse
+```json
+{
+  "rows": [{ "time": 0, "input": 100, "output": 0 }],
+  "columns": ["time", "input", "output"]
+}
+```
+
+## Analysis
 
 ### POST `/analysis/:fileId/run`
 
-Lance `scripts/analyze_simulation.py` et sauvegarde le résultat. Le JSON Python contient notamment `points_count`, `mean`, `min`, `max`, `std`, `anomalies`, `trend`, `recommendations` et `kpis`.
+Runs `server/scripts/analyze_simulation.py` against an uploaded CSV/JSON file and stores the result.
+
+Safety controls:
+
+- Only files under `server/uploads/` can be analyzed through the API.
+- Allowed extensions: `.csv`, `.json`.
+- Timeout: `PYTHON_ANALYSIS_TIMEOUT_MS`, default `15000`.
+- Output cap: `PYTHON_ANALYSIS_MAX_OUTPUT_BYTES`, default `1048576`.
+
+The Python output is versioned. The stored `raw` payload contains fields such as:
+
+```json
+{
+  "schema_version": 1,
+  "file": "sample_simulink_output.csv",
+  "columns": ["time", "input", "output"],
+  "row_count": 121,
+  "target_signal": "output",
+  "kpis": {
+    "output": {
+      "points": 121,
+      "mean": 79.028595,
+      "min": 0,
+      "max": 105.64,
+      "std": 24.373724,
+      "threshold_exceedances": 7
+    }
+  },
+  "anomalies": [{ "row": 72, "time": 7.2, "signal": "temperature", "value": 40.57, "z_score": 5.735979 }],
+  "trend": "increasing",
+  "stability": { "status": "moderate-variation", "coefficient_of_variation": 0.308417 },
+  "recommendations": ["Review anomaly windows and compare them with controller saturation or disturbance events."],
+  "sample": [{ "time": 0, "input": 100, "output": 0 }]
+}
+```
 
 ### GET `/analysis/:fileId`
 
-Retourne la dernière analyse d'un fichier.
+Returns the latest saved analysis for a file.
 
 ## Dashboard
 
 ### GET `/dashboard/summary`
 
-Retourne les statistiques globales de l'utilisateur connecté.
+Returns aggregate counts and recent analyses for the authenticated user.
 
-## Rapports
+## Reports
 
 ### GET `/reports/:projectId/:analysisId`
 
-Génère et télécharge un PDF.
-
+Generates and downloads a PDF report for a saved analysis.

@@ -1,6 +1,6 @@
 # Delivery Checklist
 
-SmartSim Analytics is ready as a portfolio/CV project.
+SmartSim Analytics is prepared as a portfolio/CV project when the checks below pass.
 
 ## Local URLs
 
@@ -10,7 +10,7 @@ SmartSim Analytics is ready as a portfolio/CV project.
 
 ## Demo Credentials
 
-After registering once, use:
+Register once in the UI. Suggested demo account:
 
 - Email: student@example.com
 - Password: password123
@@ -22,12 +22,11 @@ npm install --prefix server
 npm install --prefix client
 python3 -m venv server/.venv
 server/.venv/bin/pip install -r server/requirements.txt
-npm run analyze:sample --prefix server
 npm run lint --prefix server
+npm run python:check --prefix server
+npm run analyze:sample --prefix server
 npm run lint --prefix client
 npm run build --prefix client
-npm audit --prefix server --audit-level=moderate
-npm audit --prefix client --audit-level=moderate
 ```
 
 ## Validated Flow
@@ -36,12 +35,12 @@ npm audit --prefix client --audit-level=moderate
 - Create a simulation project.
 - Upload `matlab/sample_simulink_output.csv`.
 - Run Python analysis.
-- Generate a PDF report.
 - View dashboard KPIs and signal charts.
+- Generate a PDF report.
 
 ## Packaging Notes
 
-The delivery ZIP excludes generated folders and local secrets:
+The repository ignores generated folders and local secrets:
 
 - `node_modules/`
 - `client/dist/`

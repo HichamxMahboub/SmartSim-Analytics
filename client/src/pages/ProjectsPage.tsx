@@ -33,13 +33,22 @@ export function ProjectsPage(): JSX.Element {
     setError("");
     setLoading(true);
 
+    let parameters: Record<string, unknown>;
+    try {
+      parameters = JSON.parse(form.parameters || "{}");
+    } catch {
+      setError("Parameters must be valid JSON.");
+      setLoading(false);
+      return;
+    }
+
     try {
       await api.post("/projects", {
         name: form.name,
         description: form.description,
         systemType: form.systemType,
         simulationDate: form.simulationDate,
-        parameters: JSON.parse(form.parameters || "{}")
+        parameters
       });
       setForm(initialForm);
       await loadProjects();

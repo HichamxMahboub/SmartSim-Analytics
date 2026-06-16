@@ -109,6 +109,12 @@ router.post(
     }
 
     const rows = await parseSimulationFile(req.file.path, 5);
+    const columns = extractColumns(rows);
+    if (!rows.length || !columns.length) {
+      res.status(400);
+      throw new Error("Simulation file must include at least one row with named columns.");
+    }
+
     const file = await SimulationFile.create({
       owner: req.user._id,
       project: project._id,
@@ -117,7 +123,7 @@ router.post(
       path: req.file.path,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      columns: extractColumns(rows)
+      columns
     });
 
     res.status(201).json({ file, preview: rows });
