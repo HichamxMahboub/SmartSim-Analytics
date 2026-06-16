@@ -2,9 +2,9 @@ import { Activity, ArrowRight, Bot, Braces, Cpu, FileText, LineChart } from "luc
 import { Link } from "react-router-dom";
 
 const capabilities = [
-  { title: "MATLAB/Simulink", text: "CSV/JSON exports from simulation outputs.", icon: Cpu },
-  { title: "Python Analytics", text: "KPIs, stability checks and anomaly detection.", icon: Bot },
-  { title: "MERN Dashboard", text: "Projects, uploads, charts and PDF reports.", icon: Braces }
+  { title: "Data Ingestion", text: "CSV/JSON simulation exports with input validation.", icon: Cpu },
+  { title: "Python Analytics", text: "Deterministic KPIs, anomaly detection, and trend or stability checks.", icon: Bot },
+  { title: "Reporting Workflow", text: "Charts, project history, and PDF reporting in one dashboard.", icon: Braces }
 ] as const;
 
 const mockRows = [42, 48, 55, 61, 58, 70, 84, 76, 88, 92, 86, 95];
@@ -35,13 +35,14 @@ export function LandingPage(): JSX.Element {
         <section className="border-b border-slate-200 bg-[#f7f8fb]">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
             <div className="flex flex-col justify-center">
-              <p className="text-sm font-semibold uppercase text-cyan-700">MATLAB/Simulink + Python + MERN</p>
+              <p className="text-sm font-semibold uppercase text-cyan-700">Simulation Analytics / Full-Stack Data Platform</p>
               <h1 className="mt-4 max-w-3xl text-4xl font-semibold text-slate-950 sm:text-5xl">
                 SmartSim Analytics
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-                Plateforme web d'analyse de résultats de simulation avec import CSV/JSON, traitement Python,
-                détection d'anomalies et visualisation de signaux.
+                Full-stack platform for simulation datasets that imports CSV/JSON exports, runs deterministic Python
+                analysis, detects anomalies, calculates KPIs, checks trend and stability, and presents the results
+                through a modern dashboard with reporting support.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -52,27 +53,35 @@ export function LandingPage(): JSX.Element {
                   <ArrowRight size={18} />
                 </Link>
                 <a
-                  href="https://www.mathworks.com/products/simulink.html"
+                  href="https://github.com/HichamxMahboub/SmartSim-Analytics"
                   className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700"
                 >
-                  Simulink context
+                  GitHub
                 </a>
+                <span className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700">
+                  Live Demo: Coming soon
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700">
+                  API Demo: Coming soon
+                </span>
               </div>
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-950">DC Motor Response</p>
-                  <p className="text-xs text-slate-500">output signal · anomaly scan</p>
+                  <p className="text-sm font-semibold text-slate-950">Simulation Analytics Snapshot</p>
+                  <p className="text-xs text-slate-500">KPI extraction · anomaly scan · stability check</p>
                 </div>
-                <span className="rounded-lg bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">stable</span>
+                <span className="rounded-lg bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  validated
+                </span>
               </div>
               <div className="mt-5 grid grid-cols-4 gap-3">
-                {["points", "mean", "std", "alerts"].map((label, index) => (
-                  <div key={label} className="rounded-lg border border-slate-200 p-3">
+                {[[121, "rows"], [5, "kpis"], [14, "anomalies"], [1, "report"]].map(([value, label]) => (
+                  <div key={String(label)} className="rounded-lg border border-slate-200 p-3">
                     <p className="text-xs text-slate-500">{label}</p>
-                    <p className="mt-1 text-lg font-semibold text-slate-950">{[1200, 74.2, 6.8, 3][index]}</p>
+                    <p className="mt-1 text-lg font-semibold text-slate-950">{String(value)}</p>
                   </div>
                 ))}
               </div>
@@ -103,11 +112,11 @@ export function LandingPage(): JSX.Element {
           <div className="mx-auto grid max-w-7xl gap-4 px-4 py-10 md:grid-cols-2 lg:px-8">
             <div className="flex items-center gap-3 text-white">
               <LineChart className="text-cyan-300" />
-              <span className="font-medium">Signal charts, KPIs, anomaly points</span>
+              <span className="font-medium">GitHub Actions CI, sample data, bounded execution</span>
             </div>
             <div className="flex items-center gap-3 text-white">
               <FileText className="text-amber-300" />
-              <span className="font-medium">PDF report for portfolio demonstration</span>
+              <span className="font-medium">Recruiter-facing docs, API reference, and CV-ready positioning</span>
             </div>
           </div>
         </section>
@@ -115,4 +124,3 @@ export function LandingPage(): JSX.Element {
     </div>
   );
 }
-

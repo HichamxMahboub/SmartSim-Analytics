@@ -1,9 +1,5 @@
-# Description CV
+# CV Description
 
-SmartSim Analytics — MERN / Python / MATLAB-Simulink  
-Plateforme web d'analyse de résultats de simulation: import CSV/JSON depuis MATLAB-Simulink, traitement Python, détection d'anomalies, visualisation de signaux et génération de rapports PDF via un dashboard MERN.
+SmartSim Analytics — React / Node / Express / MongoDB / Python / Vite / Charts / PDF reporting / GitHub Actions
 
-Version courte:
-
-Projet full-stack MERN intégrant des exports MATLAB/Simulink avec une chaîne Python d'analyse de signaux: calcul de KPIs, détection d'anomalies, visualisation Recharts et génération de rapports PDF.
-
+Full-stack simulation analytics platform that ingests CSV/JSON exports, runs deterministic Python analysis for KPIs, anomaly detection, trend and stability checks, and presents results in a dashboard with charting and PDF reporting. Includes input validation, bounded Python execution, sample data, CI, and recruiter-facing documentation.
